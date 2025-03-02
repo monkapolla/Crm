@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Виртуальное окружение
+venv/
+env/
+ENV/
+
+# Файлы базы данных SQLite
+instance/
+*.sqlite
+*.db
+
+# Файлы переменных окружения
+.env
+.env.*
+
+# Файлы IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Логи
+*.log
+
+# Кэш
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/ 

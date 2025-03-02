@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h1 class="mb-4 text-center">О CRM системе</h1>
+        
+        <div class="card mb-5">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>Что такое CRM?</h4>
+                        <p>CRM (Customer Relationship Management) - это система управления взаимоотношениями с клиентами, которая помогает компаниям организовать работу с текущими и потенциальными клиентами, оптимизировать маркетинг и улучшить обслуживание клиентов.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Для кого предназначена наша CRM?</h4>
+                        <p>Наша CRM подходит для малого и среднего бизнеса, предпринимателей, фрилансеров и стартапов, которым необходим простой и удобный инструмент для управления клиентской базой и задачами.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h3 class="mb-4 text-center">Основные функции</h3>
+        
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people display-4 text-primary mb-3"></i>
+                        <h4>Управление клиентами</h4>
+                        <p>Создавайте и управляйте базой клиентов, храните всю важную информацию в одном месте, добавляйте контактные лица и примечания.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-list-task display-4 text-primary mb-3"></i>
+                        <h4>Управление задачами</h4>
+                        <p>Планируйте и отслеживайте задачи, устанавливайте приоритеты и сроки, назначайте ответственных.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-graph-up display-4 text-primary mb-3"></i>
+                        <h4>Аналитика</h4>
+                        <p>Получайте агрегированную информацию о клиентах и задачах на удобной панели управления, принимайте более обоснованные решения.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-5">
+            <div class="card-body">
+                <h3 class="text-center mb-4">Технические детали</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Используемые технологии:</h5>
+                        <ul>
+                            <li>Python</li>
+                            <li>Flask - веб-фреймворк</li>
+                            <li>SQLAlchemy - ORM для работы с базами данных</li>
+                            <li>SQLite - база данных</li>
+                            <li>Bootstrap - фреймворк для интерфейса</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Требования к системе:</h5>
+                        <ul>
+                            <li>Python 3.6 или выше</li>
+                            <li>Современный веб-браузер</li>
+                            <li>Доступ к интернету для загрузки зависимостей</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center">
+            <p>Разработано в рамках демонстрационного проекта. Версия 1.0</p>
+            <p>© 2023 CRM Система. Все права защищены.</p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_task_status, render_priority %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>{{ task.title }}</h1>
+    <div>
+        {% if task.status != 'Завершена' %}
+        <form action="{{ url_for('task.complete', id=task.id) }}" method="post" class="d-inline">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-lg"></i> Завершить
+            </button>
+        </form>
+        {% endif %}
+        <a href="{{ url_for('task.edit', id=task.id) }}" class="btn btn-primary">
+            <i class="bi bi-pencil"></i> Редактировать
+        </a>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            <i class="bi bi-trash"></i> Удалить
+        </button>
+    </div>
+</div>
+
+<!-- Модальное окно для подтверждения удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Вы уверены, что хотите удалить задачу "{{ task.title }}"?
+                Это действие нельзя будет отменить.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <form action="{{ url_for('task.delete', id=task.id) }}" method="post">
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Описание задачи</h5>
+            </div>
+            <div class="card-body">
+                {% if task.description %}
+                <p>{{ task.description|nl2br }}</p>
+                {% else %}
+                <p class="text-muted">Нет описания</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Информация</h5>
+            </div>
+            <div class="card-body">
+                <dl>
+                    <dt>Статус:</dt>
+                    <dd>{{ render_task_status(task.status) }}</dd>
+                    
+                    <dt>Приоритет:</dt>
+                    <dd>{{ render_priority(task.priority) }}</dd>
+                    
+                    <dt>Срок выполнения:</dt>
+                    <dd>{% if task.due_date %}{{ task.due_date.strftime('%d.%m.%Y %H:%M') }}{% else %}Не указан{% endif %}</dd>
+                    
+                    <dt>Клиент:</dt>
+                    <dd><a href="{{ url_for('customer.view', id=task.customer.id) }}">{{ task.customer.name }}</a></dd>
+                    
+                    <dt>Создана:</dt>
+                    <dd>{{ task.created_at.strftime('%d.%m.%Y %H:%M') }}</dd>
+                    
+                    {% if task.status == 'Завершена' and task.completed_at %}
+                    <dt>Завершена:</dt>
+                    <dd>{{ task.completed_at.strftime('%d.%m.%Y %H:%M') }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-4">
+    <a href="{{ url_for('task.index') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Назад к списку задач
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Добавляем фильтр nl2br для отображения переносов строк в описании
+    document.addEventListener('DOMContentLoaded', function() {
+        let paragraphs = document.querySelectorAll('.card-body p');
+        paragraphs.forEach(function(p) {
+            p.innerHTML = p.innerHTML.replace(/\n/g, '<br>');
+        });
+    });
+</script>
+{% endblock %} 

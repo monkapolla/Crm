@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_task_status, render_priority, render_customer_status %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 mb-4 fade-in">Панель управления</h1>
+        <p class="text-muted mb-4 slide-in">Добро пожаловать, {{ current_user.username }}! Вот сводка вашей CRM на сегодня.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-4">
+        <div class="card dashboard-card bg-gradient-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0 text-white-50">Всего клиентов</h6>
+                        <h2 class="display-6 mb-0 mt-2 fw-bold">{{ total_customers }}</h2>
+                        <p class="mt-2 mb-0 small text-white-50">Общее количество клиентов в базе</p>
+                    </div>
+                </div>
+                <i class="bi bi-people icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card dashboard-card bg-gradient-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0 text-white-50">Активные клиенты</h6>
+                        <h2 class="display-6 mb-0 mt-2 fw-bold">{{ active_customers }}</h2>
+                        <p class="mt-2 mb-0 small text-white-50">{{ '%.1f'|format(active_customers / total_customers * 100 if total_customers else 0) }}% от общего числа</p>
+                    </div>
+                </div>
+                <i class="bi bi-person-check icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card dashboard-card bg-gradient-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0 text-white-50">Задачи на сегодня</h6>
+                        <h2 class="display-6 mb-0 mt-2 fw-bold">{{ today_tasks }}</h2>
+                        <p class="mt-2 mb-0 small text-white-50">Запланировано на {{ now.strftime('%d.%m.%Y') }}</p>
+                    </div>
+                </div>
+                <i class="bi bi-calendar-check icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card dashboard-card bg-gradient-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0 text-white-50">Просроченные задачи</h6>
+                        <h2 class="display-6 mb-0 mt-2 fw-bold">{{ overdue_tasks }}</h2>
+                        <p class="mt-2 mb-0 small text-white-50">Требуют срочного внимания</p>
+                    </div>
+                </div>
+                <i class="bi bi-exclamation-triangle icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Статистика по клиентам -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Распределение клиентов</h5>
+            </div>
+            <div class="card-body">
+                <!-- Статистика клиентов по статусам в виде цветных блоков с процентами -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Активные</span>
+                        <span class="fw-bold">{{ '%.1f'|format(active_customers / total_customers * 100 if total_customers else 0) }}%</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ active_customers / total_customers * 100 if total_customers else 0 }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Потенциальные</span>
+                        <span class="fw-bold">{{ '%.1f'|format(potential_customers / total_customers * 100 if total_customers else 0) }}%</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-info" role="progressbar" 
+                             style="width: {{ potential_customers / total_customers * 100 if total_customers else 0 }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Неактивные</span>
+                        <span class="fw-bold">{{ '%.1f'|format(inactive_customers / total_customers * 100 if total_customers else 0) }}%</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-secondary" role="progressbar" 
+                             style="width: {{ inactive_customers / total_customers * 100 if total_customers else 0 }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('customer.add') }}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Добавить клиента
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Последние клиенты -->
+    <div class="col-md-8 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Последние клиенты</h5>
+                <a href="{{ url_for('customer.index') }}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-people me-1"></i> Все клиенты
+                </a>
+            </div>
+            <div class="card-body">
+                {% if recent_customers %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-sortable">
+                        <thead>
+                            <tr>
+                                <th data-sort="name">Клиент</th>
+                                <th data-sort="company">Компания</th>
+                                <th data-sort="status">Статус</th>
+                                <th data-sort="date">Добавлен</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for customer in recent_customers %}
+                            <tr class="align-middle">
+                                <td data-field="name">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-2 bg-light rounded-circle d-flex align-items-center justify-content-center">
+                                            <i class="bi bi-person text-primary"></i>
+                                        </div>
+                                        <span>{{ customer.name }}</span>
+                                    </div>
+                                </td>
+                                <td data-field="company">{{ customer.company or '—' }}</td>
+                                <td data-field="status">{{ render_customer_status(customer.status) }}</td>
+                                <td data-field="date" class="format-date" data-date="{{ customer.created_at.strftime('%Y-%m-%d') }}">
+                                    {{ customer.created_at.strftime('%d.%m.%Y') }}
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('customer.view', id=customer.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('customer.edit', id=customer.id) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-people display-3 text-muted mb-3"></i>
+                    <p class="text-muted">Нет доступных клиентов</p>
+                    <a href="{{ url_for('customer.add') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Добавить первого клиента
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Статистика по задачам -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Статус задач</h5>
+            </div>
+            <div class="card-body">
+                <!-- Статистика задач по статусам -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Новые</span>
+                        <span class="fw-bold">{{ new_tasks }}</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-info" role="progressbar" 
+                             style="width: {{ new_tasks / total_tasks * 100 if total_tasks else 0 }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>В работе</span>
+                        <span class="fw-bold">{{ in_progress_tasks }}</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-primary" role="progressbar" 
+                             style="width: {{ in_progress_tasks / total_tasks * 100 if total_tasks else 0 }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Завершенные</span>
+                        <span class="fw-bold">{{ completed_tasks }}</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ completed_tasks / total_tasks * 100 if total_tasks else 0 }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Отложенные</span>
+                        <span class="fw-bold">{{ postponed_tasks }}</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-warning" role="progressbar" 
+                             style="width: {{ postponed_tasks / total_tasks * 100 if total_tasks else 0 }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('task.add') }}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Добавить задачу
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Мои задачи -->
+    <div class="col-md-8 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Мои задачи</h5>
+                <a href="{{ url_for('task.index') }}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-list-check me-1"></i> Все задачи
+                </a>
+            </div>
+            <div class="card-body">
+                {% if user_tasks %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-sortable">
+                        <thead>
+                            <tr>
+                                <th data-sort="title">Задача</th>
+                                <th data-sort="priority">Приоритет</th>
+                                <th data-sort="customer">Клиент</th>
+                                <th data-sort="due">Срок</th>
+                                <th data-sort="status">Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in user_tasks[:5] %}
+                            <tr class="align-middle">
+                                <td data-field="title">
+                                    <a href="{{ url_for('task.view', id=task.id) }}" class="text-decoration-none">{{ task.title }}</a>
+                                </td>
+                                <td data-field="priority">{{ render_priority(task.priority) }}</td>
+                                <td data-field="customer">
+                                    <a href="{{ url_for('customer.view', id=task.customer.id) }}" class="text-decoration-none">{{ task.customer.name }}</a>
+                                </td>
+                                <td data-field="due" class="task-due-date" data-date="{{ task.due_date }}" data-status="{{ task.status }}">
+                                    {% if task.due_date %}
+                                        {{ task.due_date.strftime('%d.%m.%Y') }}
+                                    {% else %}
+                                        <span class="text-muted">Не задан</span>
+                                    {% endif %}
+                                </td>
+                                <td data-field="status">{{ render_task_status(task.status) }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('task.view', id=task.id) }}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Просмотр">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('task.edit', id=task.id) }}" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="Редактировать">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        {% if task.status != 'Завершена' %}
+                                        <button type="button" class="btn btn-sm btn-outline-success" 
+                                                onclick="document.getElementById('complete-form-{{ task.id }}').submit();"
+                                                data-bs-toggle="tooltip" title="Завершить">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                        <form id="complete-form-{{ task.id }}" action="{{ url_for('task.complete', id=task.id) }}" method="post" style="display: none;"></form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-list-check display-3 text-muted mb-3"></i>
+                    <p class="text-muted">У вас нет активных задач</p>
+                    <a href="{{ url_for('task.add') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Создать задачу
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Добавляем анимации для блоков на дашборде
+        var dashboardCards = document.querySelectorAll('.dashboard-card');
+        dashboardCards.forEach(function(card, index) {
+            card.style.animationDelay = (index * 0.15) + 's';
+        });
+    });
+</script>
+{% endblock %} 
